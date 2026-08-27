@@ -8,7 +8,7 @@ def main():
     # Running an infinite loop and only breaking when the condition is met
     while True:
         num = int(input("Enter a number: "))
-        if num < 1:
+        if num <= 1:
             print("Invalid number! Please retry")
             continue
 
@@ -20,8 +20,11 @@ def main():
                 if num % div == 0:
                     print(f"{num} is not a Prime Number as it is divisible by {div}")
                     break
-                d += 1
+                div += 1
+
+
+            else:
+                print(f"{num} is a Prime Number")
+
         break
-
-
 main()
