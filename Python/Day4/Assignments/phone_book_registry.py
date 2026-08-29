@@ -26,28 +26,20 @@ def main():
 
     contacts = {}
     contacts = register_contact(contacts, "Alice", "9131366969")
-    contacts = register_contact(contacts, "Ghost", "7470495088")
-    print(contacts)
     line()
 
-    result = lookup_phone_input(contacts, "Alice")
-    print(f"The contact number for Alice is: {result}")
+    
+    try:
+        contacts = register_contact(contacts, "Bob", "123-456-789")
+    except InvalidPhoneNumberError as e:
+        print(e)
     line()
 
-    result = lookup_phone_input(contacts, "Ghost")
-    print(result)
+    try:
+        contacts = register_contact(contacts, "Bob123", "9876543210")
+    except ValueError as e:
+        print(e)
     line()
-
-    print(processed_name("Alice"))
-    line()
-    print(processed_name("Bob123"))
-    line()
-    print(processed_name(""))
-    line()
-    print(processed_name("   "))
-    line()
-    print(processed_name("Mary Jane"))
-# main()
 
 
 
@@ -85,7 +77,6 @@ def lookup_phone_input(phonebook: Dict[str, str], name: str) -> str:
 def valid_phone_input(phonebook: Dict[str, str], name: str, phone_input: str) -> None: 
     ...
     contact_number = int(phone_input)
-
 
 
 if __name__ == "__main__":
