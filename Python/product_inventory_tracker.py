@@ -4,25 +4,25 @@ products = [
 ]
 
 def menu(): 
+    while True:
+        menu_text = '''
 
-    menu_text = '''
+        ====== USER MENU ======
+        1. Add Product
+        2. View All Products
+        3. Search Product
+        4. Update Product
+        5. Delete Product
+        6. Exit
+        =======================
+    ''' 
+        print("Product Inventory Management System")
+        print(menu_text)
 
-    ====== USER MENU ======
-    1. Add Product
-    2. View All Products
-    3. Search Product
-    4. Update Product
-    5. Delete Product
-    6. Exit
-    =======================
-''' 
-    print("Product Inventory Management System")
-    print(menu_text)
-
-    try:
-        choice = int(input("Enter your choice: "))
-    except:
-        choice = -1
+        try:
+            choice = int(input("Enter your choice: "))
+        except:
+            choice = -1
 
 
 def add_product():
@@ -38,7 +38,8 @@ def add_product():
         # Generate the new id
         pid = id_counter + 1
 
-    except 
+    except ValueError:
+        print("Please enter valid product details")
 
 def view_products():
     pass
@@ -74,22 +75,24 @@ def main():
             case 1:
                 add_product()
 
-            case 1:
+            case 2:
                 pass
 
-            case 1:
+            case 3:
                 pass
 
-            case 1:
+            case 4:
                 pass
 
-            case 1:
+            case 5:
                 pass
 
-            case 1:
+            case 6:
                 pass
 
-            case 1:
+            case _:
                 pass
 
+if __name__ == '__main__':
+    main()
         
