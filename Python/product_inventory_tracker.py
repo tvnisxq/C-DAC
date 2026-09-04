@@ -1,63 +1,12 @@
+
 products = [
 {"id": 1, "name": "Laptop", "category": "Electronics", "price": 55000, "quantity": 10},
 {"id": 2, "name": "Chair", "category": "Furniture", "price": 1500, "quantity": 50}
 ]
 
-def menu(): 
-    while True:
-        menu_text = '''
-
-        ====== USER MENU ======
-        1. Add Product
-        2. View All Products
-        3. Search Product
-        4. Update Product
-        5. Delete Product
-        6. Exit
-        =======================
-    ''' 
-        print("Product Inventory Management System")
-        print(menu_text)
-
-        try:
-            choice = int(input("Enter your choice: "))
-        except:
-            choice = -1
-
-
-def add_product():
-    try:
-        global id_counter
-
-        print("==========Add New Product==========")
-        name = input("Name :")
-        category = input("Name :")
-        price = input("Price :")
-        Quantity = input("Quantity :")
-
-        # Generate the new id
-        pid = id_counter + 1
-
-    except ValueError:
-        print("Please enter valid product details")
-
-def view_products():
-    pass
-
-def search_products():
-    pass
-
-def update_product():
-    pass
-
-def delete_product():
-    pass
-
-
-
-
-def main():
-    '''
+def menu():
+    print("=====USER MENU=====")
+    menu_text = '''
     1. Add Product
     2. View All Products
     3. Search Product
@@ -65,21 +14,109 @@ def main():
     5. Delete Product
     6. Exit
     '''
+    print(menu_text)
+    try:
+        choice  = int(input("Enter your choice: "))
+
+    except:
+        choice = -1
+
+    return choice
+
+# This adds prodcut in inventories
+def add_product():
+    try:
+        id = int(input("ID: "))
+        name = input("Name: ")
+        category = input("Category: ")
+        price = int(input("Price: "))
+        quantity = input("Quantity: ")
+
+    except ValueError:
+        print("Please retry with a numerical value")
+
+    print(products) # This gives the default product list
+    products.append(dict(id=id, name=name, category=category, price=price, quantity=quantity))
+    print(products) # This gives the updated product list(appended)
+
+
+def view_products():
+    print("=====Product Inventory=====")
+    # We check if there is any product in the inventory; display if yes 
+    if len(products) == 0:
+        print("No products found! Add products first")
+        return # returns back to the line which called this mf
+
+
+    # Looping through the product list
+    for p in products:
+
+        # Unpacks the current product dictionary and assigns it to variables(note that the order matters here)
+        id, name, category, price, quantity = p.values()
+        print(f"{id:^5}{name:<20}{category:<20}{price:<10}{quantity:<5}")
+    print("="*80)
+
+def search_products():
+    try:
+        select = int(input("Select the search type: "))
+
+        if select == 1:
+            search_by_id() # This calls search_by_id() function
+
+        elif select == 2:
+            search_by_name()
+
+        # this handles if user enters invalid numbers.
+        else:
+            print("Invalid selection! Please retry")
+
+    # this gets executed when user enters string value.
+    except:
+        print("Please enter an integer input")
+
+# When user enters 1 as selection, search_by_id() gets executed 
+def search_by_id():
+    id_input = int(input("Enter id to search: "))
+
+    # Using list comprehension to iterate over the product list(each product is a dict here)
+    result = [ p for p in products if p["id"]==id_input] 
+    # We need to iterate over a specific dict using key: val pair.
+    # p["id"] represents the current product's(p) id val
+    print(result)
+            
+
+# When user enters 2 as selection, search_by_name() gets executed 
+def search_by_name():
+    name_input = input("Enter name to search: ")
+
+    result = [p for p in products if p["name"]==name_input.title()]
+    print(result)
+
+
+
+def update_products():
+    pass
+
+def delete_products():
+    pass
+
+
+def main():
+
+# Imp
     while True:
-        # The entered choice is calling the user menu
         choice = menu()
-
-        # Conditionals for triggering a specific function according to entered choice
         match choice:
-
             case 1:
+                # Calls add_product function
                 add_product()
 
             case 2:
-                pass
-
+                # Calls view_product function
+                view_products()
             case 3:
-                pass
+                # Calls the search_products function
+                search_products()
 
             case 4:
                 pass
@@ -88,11 +125,9 @@ def main():
                 pass
 
             case 6:
-                pass
+                break
 
-            case _:
-                pass
+
 
 if __name__ == '__main__':
     main()
-        

@@ -1,0 +1,16 @@
+fast cursor navigation: 
+        1. end:           brings the cursor to end of line
+        2. home:          brings the cursor to starting of line
+        3. Ctrl + end:    brings the cursor to end of file
+        4. Ctrl + home:   brings the cursor 
+ 
+ 
+ Text replacement:
+        1. Ctrl + Shift + -> : Selects a whole word for replacement/deletion   
+        2. Ctrl + Shift + <- : Same as above
+        3. Shift + end: selects an entire line from the current cursor position(to the right)
+        3. Shift + home: selects an entire line from the current cursor position(to the left)
+
+Fast Copy Pasta:
+        1. Shift + Alt + DownArrow: Replicates the current line downwards
+        1. Shift + Alt + UpArrow: Replicates the current line upwards
