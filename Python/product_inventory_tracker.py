@@ -95,10 +95,36 @@ def search_by_name():
 
 
 def update_products():
-    pass
+    try:
+        select = int(input("Select the product to be updated: "))
+
+        for p in products:
+            if select == p['id']:
+                new_name = input("New Name: ")
+
+                if new_name: # This is truthy if not empty(False if empty)
+                    p['name'] = new_name
+
+ 
+    except:
+        print("Please enter a numerical value")
+
 
 def delete_products():
-    pass
+    try:
+        select = int(input("Enter product id to delete the product: "))
+
+        for p in products:
+            if p['id'] == select:
+                products.remove(p)
+                print("***********")
+                print(f"Product {select} deleted!")
+                break
+            
+            else:
+                print(f"No Product with id '{select}'")
+    except:
+        print("Please enter a numerical value as product id")        
 
 
 def main():
@@ -119,10 +145,12 @@ def main():
                 search_products()
 
             case 4:
-                pass
+                # Calls the update_products() function
+                update_products()
 
             case 5:
-                pass
+                # Calls the delete_products() function
+                 delete_products()
 
             case 6:
                 break
@@ -131,3 +159,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
