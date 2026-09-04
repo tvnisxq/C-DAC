@@ -6,5 +6,4 @@ class MathUtility:
 print(MathUtility.is_even(10))
 n1 = MathUtility.is_even(10)
 
-# Bad Practice
-print(n1.is_even) # This one shows Attribute error
+print(n1.is_even) # This one shows Attribute errorb
