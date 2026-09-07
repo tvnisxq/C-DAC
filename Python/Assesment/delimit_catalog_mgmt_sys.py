@@ -20,7 +20,7 @@ def menu():
     except ValueError: 
         choice = -1
 
-    print("."*50)
+    print("."*60)
 
     return choice
 
@@ -91,6 +91,7 @@ def add_book_entry(catalog: List[Dict], next_id: int) -> int:
            print("Invalid value(s) have been supplied to field(s)")
 
     catalog.append(dict(id=next_id, title=title, author=author, genre=genre, price=price, copies=copies))
+    return next_id + 1
 
 #=========================================================================
 
@@ -139,8 +140,22 @@ def render_catalog(catalog: list[dict]) -> None:
         )
     print("="*80)
 
+#=========================================================================
+def query_books(catalog: list[dict], search_term: str) -> list[dict]:
+    """Returns filtered list matching ID or case-insensitive title/author substring."""
 
 
+    print("=================SEARCH BOOKS=====================")
+
+    if search_term.isdigit():
+        search_id = int(search_term)
+        results = [book for book in catalog if search_id==book['id']]
+        return results
+
+    else:
+        search_name = search_term.lower()
+        results = [book for book in catalog if search_name==book['title']]
+        return results
 
 #=========================================================================
 def main():
@@ -155,10 +170,29 @@ def main():
         match choice:
             case 1:
                 # Calls the add_book_entry function 
-                add_book_entry(catalog, next_id=1)         
+                next_id = add_book_entry(catalog, next_id)         
 
             case 2:
                 render_catalog(catalog)
+
+            case 3:
+                search_term = ""
+                results = query_books(catalog, search_term)
+
+            case 4:
+                ...
+
+            case 5:
+                ...
+
+            case 6:
+                ...
+
+            case 7:
+                ...
+
+            case 8:
+                exit
 
 
 if __name__ == '__main__':
