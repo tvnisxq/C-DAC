@@ -142,10 +142,6 @@ def render_catalog(catalog: list[dict]) -> None:
 
 #=========================================================================
 def query_books(catalog: list[dict]) -> list[dict]:
-
-    if not catalog:
-        print("Catalog Empty! Please add first")
-        return []
     """Returns filtered list matching ID or case-insensitive title/author substring."""
        
     print("=================SEARCH BOOKS=====================")
@@ -162,6 +158,23 @@ def query_books(catalog: list[dict]) -> list[dict]:
         search_name = search_term.lower()
         results = [book for book in catalog if search_name == book['title'].lower() or search_name == book['author'].lower()]
         return results
+
+#=========================================================================
+def modify_book_details(catalog: list[dict], book_id: int) -> bool:
+    """Updates price and copies for the specified book ID; returns success status."""
+    try:
+        select = int(input("Enter id to be updated: "))
+
+        for book in catalog:
+            if int(select) == book['id']:
+                new_price = float("New Price: ")
+                new_copies = int("New Copies: ")
+            else:
+                print(f"No book found for ID: {select} !!!")
+
+    except:
+        print("Please enter a numerical value !!!")
+    
 
 #=========================================================================
 def main():
@@ -182,14 +195,18 @@ def main():
                 render_catalog(catalog)
 
             case 3:
-                search_term = ""
-                results = query_books(catalog)
+                if not catalog:
+                    print("Catalog Empty! Please add first")
 
-                if results:
-                    render_catalog(results)
                 else:
-                    print("No Matching books found!")
-
+                    results = query_books(catalog)
+                    
+                    if results:     # Print results if not empty
+                        render_catalog(results)
+                    
+                    else:       # Else print message 
+                        print("No matching books found !!!")
+                    
             case 4:
                 ...
 
