@@ -109,7 +109,7 @@ def render_catalog(catalog: list[dict]) -> None:
 
         print("\n========Book Details========")
         for key, val in book.items():
-            print(f"{key}: {val}")
+            print(f"{key.title()}: {val}")
 
         print("==============================")
         return  
@@ -141,27 +141,27 @@ def render_catalog(catalog: list[dict]) -> None:
     print("="*80)
 
 #=========================================================================
-def query_books(catalog: list[dict], search_term: str) -> list[dict]:
-    """Returns filtered list matching ID or case-insensitive title/author substring."""
+def query_books(catalog: list[dict]) -> list[dict]:
 
     if not catalog:
         print("Catalog Empty! Please add first")
+        return []
+    """Returns filtered list matching ID or case-insensitive title/author substring."""
+       
+    print("=================SEARCH BOOKS=====================")
+    search_term = input("Enter the Search Term: ").strip()
 
+    # If the search_temr is int: use id to search
+    if search_term.isdigit():
+        search_id = int(search_term)
+        results = [book for book in catalog if search_id==book['id']]
+        return results
+
+    # Otherwise search using the name
     else:
-        print("=================SEARCH BOOKS=====================")
-        search_term = input("Enter the Search Term: ").strip()
-
-        # If the search_temr is int: use id to search
-        if search_term.isdigit():
-            search_id = int(search_term)
-            results = [book for book in catalog if search_id==book['id']]
-            return results
-
-        # Otherwise search using the name
-        else:
-            search_name = search_term.lower()
-            results = [book for book in catalog if search_name == book['title'].lower() or search_name == book['author'].lower()]
-            return results
+        search_name = search_term.lower()
+        results = [book for book in catalog if search_name == book['title'].lower() or search_name == book['author'].lower()]
+        return results
 
 #=========================================================================
 def main():
@@ -183,7 +183,12 @@ def main():
 
             case 3:
                 search_term = ""
-                results = query_books(catalog, search_term)
+                results = query_books(catalog)
+
+                if results:
+                    render_catalog(results)
+                else:
+                    print("No Matching books found!")
 
             case 4:
                 ...
@@ -198,7 +203,7 @@ def main():
                 ...
 
             case 8:
-                exit
+                break
 
 
 if __name__ == '__main__':
