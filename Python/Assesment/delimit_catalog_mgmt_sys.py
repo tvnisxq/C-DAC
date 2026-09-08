@@ -103,7 +103,7 @@ def render_catalog(catalog: list[dict]) -> None:
         print("Catalog is empty. Please add a book first")
         return 
 
-    # If there is only 1 book in the catalog, show single card entry
+    # If there is excatly 1 book in the catalog, show single card entry
     if len(catalog) == 1:
         book = catalog[0]
 
@@ -156,8 +156,9 @@ def query_books(catalog: list[dict]) -> list[dict]:
     # Otherwise search using the name
     else:
         search_name = search_term.lower()
-        results = [book for book in catalog if search_name == book['title'].lower() or search_name == book['author'].lower()]
+        results = [book for book in catalog if search_name in book['title'].lower() or search_name in book['author'].lower()]
         return results
+
 
 #=========================================================================
 def modify_book_details(catalog: list[dict], book_id: int) -> bool:
@@ -167,13 +168,23 @@ def modify_book_details(catalog: list[dict], book_id: int) -> bool:
 
         for book in catalog:
             if int(select) == book['id']:
-                new_price = float("New Price: ")
-                new_copies = int("New Copies: ")
-            else:
-                print(f"No book found for ID: {select} !!!")
+                new_price = float(input("New Price: "))
+                new_copies = int(input("New Copies: "))
 
-    except:
+                book['price'] = new_price
+                book['copies'] = new_copies
+
+                print("Book details updated successfully!!!")
+
+                return True
+        else:
+            print(f"No book found for ID: {select} !!!")
+            return False
+
+
+    except ValueError: # Avoiding bare except
         print("Please enter a numerical value !!!")
+
     
 
 #=========================================================================
@@ -208,7 +219,9 @@ def main():
                         print("No matching books found !!!")
                     
             case 4:
-                ...
+                book_id = int(input("Enter ID to update: "))
+                success = modify_book_details(catalog, book_id=next_id)
+
 
             case 5:
                 ...
