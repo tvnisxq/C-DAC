@@ -112,7 +112,7 @@ def render_catalog(catalog: list[dict]) -> None:
             print(f"{key}: {val}")
 
         print("==============================")
-        return 
+        return  
 
     # Display multiple books in a formatted table
     print("\n" + "="*85)
@@ -144,18 +144,24 @@ def render_catalog(catalog: list[dict]) -> None:
 def query_books(catalog: list[dict], search_term: str) -> list[dict]:
     """Returns filtered list matching ID or case-insensitive title/author substring."""
 
-
-    print("=================SEARCH BOOKS=====================")
-
-    if search_term.isdigit():
-        search_id = int(search_term)
-        results = [book for book in catalog if search_id==book['id']]
-        return results
+    if not catalog:
+        print("Catalog Empty! Please add first")
 
     else:
-        search_name = search_term.lower()
-        results = [book for book in catalog if search_name==book['title']]
-        return results
+        print("=================SEARCH BOOKS=====================")
+        search_term = input("Enter the Search Term: ").strip()
+
+        # If the search_temr is int: use id to search
+        if search_term.isdigit():
+            search_id = int(search_term)
+            results = [book for book in catalog if search_id==book['id']]
+            return results
+
+        # Otherwise search using the name
+        else:
+            search_name = search_term.lower()
+            results = [book for book in catalog if search_name == book['title'].lower() or search_name == book['author'].lower()]
+            return results
 
 #=========================================================================
 def main():
