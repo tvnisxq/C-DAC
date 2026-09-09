@@ -199,6 +199,36 @@ def sync_catalog_to_file(filepath: str, catalog: list[dict]) -> None:
     print("Catalog saved Successfully!")
 
 #=========================================================================
+
+def load_catalog_from_file(filepath: str) -> list[dict]:
+    """Parses books.txt line-by-line using split('|') and reconstructs dictionary list."""
+    catalog  = []
+
+    with open('books.txt', 'r') as file:
+        lines = file.readlines()
+        for line in lines:
+            parts = line.strip().split('|')
+
+            id, title, author, genre, price, copies = parts
+
+            # Everything read from a file is a string.
+            # So we convert numeric values back to their original types.
+            book = {
+                'id': int(id),
+                'title': title,
+                'author': author,
+                'genre': genre,
+                'price': float(price),
+                'copies': int(copies)
+            }
+
+            # Add the reconstructed dictionary back to catalog
+            catalog.append(book)
+
+    return catalog
+
+
+#=========================================================================
 def main():
 
     catalog = []
@@ -244,7 +274,9 @@ def main():
                     sync_catalog_to_file('books.txt', catalog)
 
             case 7:
-                ...
+                filepath = 'books.txt'
+                catalog = load_catalog_from_file(filepath)
+                print("Catalog loaded Successfully!")
 
             case 8:
                 break
