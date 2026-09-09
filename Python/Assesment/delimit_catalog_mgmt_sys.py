@@ -185,10 +185,18 @@ def modify_book_details(catalog: list[dict], book_id: int) -> bool:
         print("Please enter a numerical value !!!")
 
 #=========================================================================
+def delete_books():
+    ...
+
+#=========================================================================
 
 def sync_catalog_to_file(filepath: str, catalog: list[dict]) -> None:
     """Serializes each book dictionary into pipe-delimited strings in write mode."""
-    
+    with open('books.txt', 'w') as file:
+        for b in catalog:
+            id, title, author,genre, price, copies  = b.values()
+            books_file = file.write(f"{id}|{title}|{author}|{genre}|{price}|{copies}\n")
+    print("Catalog saved Successfully!")
 
 #=========================================================================
 def main():
@@ -230,7 +238,10 @@ def main():
                 ...
 
             case 6:
-                ...
+                if not catalog:
+                    print("Empty Catalog! Please add first")
+                else:
+                    sync_catalog_to_file('books.txt', catalog)
 
             case 7:
                 ...
