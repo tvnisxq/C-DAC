@@ -164,10 +164,9 @@ def query_books(catalog: list[dict]) -> list[dict]:
 def modify_book_details(catalog: list[dict], book_id: int) -> bool:
     """Updates price and copies for the specified book ID; returns success status."""
     try:
-        select = int(input("Enter id to be updated: "))
 
         for book in catalog:
-            if int(select) == book['id']:
+            if int(book_id) == book['id']:
                 new_price = float(input("New Price: "))
                 new_copies = int(input("New Copies: "))
 
@@ -178,13 +177,17 @@ def modify_book_details(catalog: list[dict], book_id: int) -> bool:
 
                 return True
         else:
-            print(f"No book found for ID: {select} !!!")
+            print(f"No book found for ID: {book_id} !!!")
             return False
 
 
     except ValueError: # Avoiding bare except
         print("Please enter a numerical value !!!")
 
+#=========================================================================
+
+def sync_catalog_to_file(filepath: str, catalog: list[dict]) -> None:
+    """Serializes each book dictionary into pipe-delimited strings in write mode."""
     
 
 #=========================================================================
@@ -220,7 +223,7 @@ def main():
                     
             case 4:
                 book_id = int(input("Enter ID to update: "))
-                success = modify_book_details(catalog, book_id=next_id)
+                success = modify_book_details(catalog, book_id)
 
 
             case 5:
