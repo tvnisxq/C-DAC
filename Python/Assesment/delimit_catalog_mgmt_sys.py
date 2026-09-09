@@ -185,14 +185,29 @@ def modify_book_details(catalog: list[dict], book_id: int) -> bool:
         print("Please enter a numerical value !!!")
 
 #=========================================================================
-def delete_books():
-    ...
+def delete_books(catalog: list[dict], book_id: int) -> bool:
 
+    
+
+    for index, book in enumerate(catalog):
+        if book['id'] == book_id:
+
+            select = (input("Are you sure you want to delete this book [y/n]: ")).strip().lower()
+
+            if select == 'y':
+                del catalog[index]
+                print("Book removed successfully!")
+                return True
+            else:
+                return False
+
+    print(f"No book found for ID: {book_id}")
+    return False
 #=========================================================================
 
 def sync_catalog_to_file(filepath: str, catalog: list[dict]) -> None:
     """Serializes each book dictionary into pipe-delimited strings in write mode."""
-    with open('books.txt', 'w') as file:
+    with open(filepath, 'w') as file:
         for b in catalog:
             id, title, author,genre, price, copies  = b.values()
             books_file = file.write(f"{id}|{title}|{author}|{genre}|{price}|{copies}\n")
@@ -204,7 +219,7 @@ def load_catalog_from_file(filepath: str) -> list[dict]:
     """Parses books.txt line-by-line using split('|') and reconstructs dictionary list."""
     catalog  = []
 
-    with open('books.txt', 'r') as file:
+    with open(filepath, 'r') as file:
         lines = file.readlines()
         for line in lines:
             parts = line.strip().split('|')
@@ -265,7 +280,8 @@ def main():
 
 
             case 5:
-                ...
+                book_id = int(input("Enter ID to delete: "))
+                delete_books(catalog, book_id)
 
             case 6:
                 if not catalog:
