@@ -5,6 +5,7 @@ def manage_bookstore_inventory(inventory, action, book_title, quantity=0):
         # If the book exists, add to its current quantity.
         # If it doesn't, get() returns 0, so it becomes a new book.
         inventory[book_title] = inventory.get(book_title, 0) + quantity
+        print(inventory)
 
     elif action == "sell":
 
@@ -57,9 +58,3 @@ inventory = manage_bookstore_inventory(inventory, "sell", "Learning AI", 10)
 inventory = manage_bookstore_inventory(inventory, "sell", "Learning AI", 5)
 
 print(inventory)
-
-print(
-        manage_bookstore_inventory(
-        inventory, "lookup", "Python Basics"
-    )
-)
