@@ -1,0 +1,332 @@
+step 1:
+java -version
+step 2:
+javac -version
+
+//both should be 1.8.0_472"
+otherwise use:
+
+1. ls -l /usr/lib/jvm/
+
+2. sudo update-alternatives --config java
+//choose java 8
+3. sudo update-alternatives --config javac
+//choose java 8
+
+//again 
+java -version
+javac -version
+
+
+step 3: set java path 
+echo 'export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64' >> ~/.bashrc
+
+step 4:
+source ~/.bashrc
+
+step 5: verify java home
+echo $JAVA_HOME
+
+o/p: /usr/lib/jvm/java-8-openjdk-amd64
+
+step 6:install ssh
+sudo apt update
+
+step 7:  
+sudo apt install openssh-server openssh-client -y
+
+step 8:Then check SSH:
+ssh -V
+
+step 9: Start SSH service
+sudo service ssh start
+
+//Then check its status:
+
+sudo service ssh status
+
+//Look for:
+
+Active: active (running)
+
+
+step 10:Configure Passwordless SSH
+Hadoop needs SSH access to the local machine without repeatedly asking for a password.
+Check whether an SSH key already exists
+
+ls -la ~/.ssh
+
+step 11:passwordless ssh
+cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+
+chmod 600 ~/.ssh/authorized_keys
+
+ssh localhost
+
+exit
+
+step 12: install Hadoop
+
+sari@DESKTOP-CQEJB26:~$ mkdir -p ~/downloads
+sari@DESKTOP-CQEJB26:~$ cd ~/downloads
+sari@DESKTOP-CQEJB26:~/downloads$ wget https://archive.apache.org/dist/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz
+
+ls -lh
+
+//you get 
+hadoop-3.3.6.tar.gz
+
+step 13:
+Extract Hadoop. You are already in:
+~/downloads
+
+Run:
+tar -xzf hadoop-3.3.6.tar.gz
+
+This will extract the Hadoop folder.
+Then check:
+
+ls -lh
+
+You should see both:
+
+hadoop-3.3.6
+hadoop-3.3.6.tar.gz
+
+step 14:
+Move Hadoop to /usr/local/hadoop
+Run:
+
+sudo mv hadoop-3.3.6 /usr/local/hadoop
+
+Then verify that Hadoop is there:
+
+ls -ld /usr/local/hadoop
+
+Expected output will look similar to:
+drwxr-xr-x ... /usr/local/Hadoop
+
+hadoop version 
+
+step 15: Configure Hadoop's JAVA_HOME
+Now we need to tell Hadoop specifically which Java installation to use.
+Open the Hadoop environment configuration file:
+
+nano /usr/local/hadoop/etc/hadoop/hadoop-env.sh
+
+Inside the file, find a line containing:
+
+export JAVA_HOME=
+
+If you find it, set it to:
+
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+
+If it is commented like this:
+
+# export JAVA_HOME=
+
+change it to:
+
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+Save the file
+
+In nano:
+
+Press Ctrl + O
+Press Enter
+Press Ctrl + X
+
+Then verify the setting with:
+
+grep JAVA_HOME /usr/local/hadoop/etc/hadoop/hadoop-env.sh
+
+You should see:
+
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+
+step 16:go to first line , ctrl+k to delete faster
+
+nano /usr/local/hadoop/etc/hadoop/core-site.xml
+
+//add
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+
+    <property>
+        <name>fs.defaultFS</name>
+        <value>hdfs://localhost:9000</value>
+    </property>
+
+</configuration>
+
+
+cat /usr/local/hadoop/etc/hadoop/core-site.xml 
+
+Step 17: Configure hdfs-site.xml
+
+Now we'll configure where Hadoop stores the NameNode metadata and DataNode data blocks.
+
+Open:
+
+nano /usr/local/hadoop/etc/hadoop/hdfs-site.xml
+
+Again, to avoid the previous XML problem, delete all existing contents using Ctrl + K repeatedly.
+
+Then paste exactly:
+
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+
+    <property>
+        <name>dfs.replication</name>
+        <value>1</value>
+    </property>
+
+    <property>
+        <name>dfs.namenode.name.dir</name>
+        <value>file:///home/sari/hadoop_data/hdfs/namenode</value>
+    </property>
+
+    <property>
+        <name>dfs.datanode.data.dir</name>
+        <value>file:///home/sari/hadoop_data/hdfs/datanode</value>
+    </property>
+
+</configuration>
+
+
+//Then verify:
+
+cat /usr/local/hadoop/etc/hadoop/hdfs-site.xml
+
+step 18:
+nano /usr/local/hadoop/etc/hadoop/mapred-site.xml
+
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+
+    <property>
+        <name>mapreduce.framework.name</name>
+        <value>yarn</value>
+    </property>
+
+</configuration>
+
+cat /usr/local/hadoop/etc/hadoop/mapred-site.xml
+
+step 19:
+Configure yarn-site.xml
+
+nano /usr/local/hadoop/etc/hadoop/yarn-site.xml
+
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+
+    <property>
+        <name>yarn.nodemanager.aux-services</name>
+        <value>mapreduce_shuffle</value>
+    </property>
+
+</configuration>
+
+cat /usr/local/hadoop/etc/hadoop/yarn-site.xml
+
+
+step 20:
+Perfect. `yarn-site.xml` is also **correct**.
+
+We now have all four main Hadoop configuration files ready:
+
+| File              | Status  |
+| ----------------- | ------- |
+| `core-site.xml`   | Correct |
+| `hdfs-site.xml`   | Correct |
+| `mapred-site.xml` | Correct |
+| `yarn-site.xml`   | Correct |
+
+Step 20: Final configuration check
+
+Before we format the NameNode, let's verify that Hadoop can see the configuration files and Java correctly.
+
+Run these four commands:
+
+```bash
+echo $JAVA_HOME
+```
+
+```bash
+hadoop version
+```
+
+```bash
+grep -A2 "fs.defaultFS" /usr/local/hadoop/etc/hadoop/core-site.xml
+```
+
+```bash
+grep -A2 "dfs.replication" /usr/local/hadoop/etc/hadoop/hdfs-site.xml
+```
+
+You should get:
+
+```text
+/usr/lib/jvm/java-8-openjdk-amd64
+```
+
+and:
+
+```text
+Hadoop 3.3.6
+```
+
+For the configuration checks, you should see:
+
+```text
+<name>fs.defaultFS</name>
+<value>hdfs://localhost:9000</value>
+```
+
+and:
+
+```text
+<name>dfs.replication</name>
+<value>1</value>
+```
+
+step 21:
+Format the NameNode
+This is an important step. NameNode formatting initializes the HDFS metadata storage.
+Since this is a fresh Hadoop installation, run:
+
+hdfs namenode -format
+
+step 22:
+Check the NameNode directory
+
+Run:
+ls -lh /home/sari/hadoop_data/hdfs/namenode
+
+You should see Hadoop metadata files/directories such as:
+
+current
+
+and files inside current.
+
+step 23:
+start-dfs.sh
+
+jps
+
+expected o/p:
+NameNode
+DataNode
+SecondaryNameNode
+Jps
