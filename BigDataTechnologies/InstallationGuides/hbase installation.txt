@@ -1,0 +1,1055 @@
+============================================================
+          HBASE 2.6.6 INSTALLATION — A TO Z
+============================================================
+
+ENVIRONMENT:
+
+OS              : Ubuntu
+Java            : 11
+Hadoop          : 3.3.6
+HBase           : 2.6.6-hadoop3
+HBase Location  : /usr/local/hbase
+Hadoop Location : /usr/local/hadoop
+
+HDFS NameNode:
+hdfs://localhost:9000
+
+HBase Root:
+hdfs://localhost:9000/hbase
+
+ZooKeeper:
+localhost:2181
+
+
+============================================================
+STEP 1 — CHECK JAVA
+============================================================
+
+Run:
+
+java11
+
+Then:
+
+java -version
+
+Expected:
+
+Java 11
+
+
+Check:
+
+echo $JAVA_HOME
+
+Expected:
+
+/usr/lib/jvm/java-11-openjdk-amd64
+
+
+IMPORTANT:
+
+For this HBase setup, use Java 11.
+
+
+============================================================
+STEP 2 — CHECK HADOOP
+============================================================
+
+Run:
+
+hadoop version
+
+Expected:
+
+Hadoop 3.3.6
+
+
+Check:
+
+echo $HADOOP_HOME
+
+Expected:
+
+/usr/local/hadoop
+
+
+Check:
+
+echo $HADOOP_CONF_DIR
+
+Expected:
+
+/usr/local/hadoop/etc/hadoop
+
+
+============================================================
+STEP 3 — CHECK HADOOP NameNode ADDRESS
+============================================================
+
+Run:
+
+sed -n '5,9p' \
+/usr/local/hadoop/etc/hadoop/core-site.xml
+
+
+Expected:
+
+<property>
+    <name>fs.defaultFS</name>
+    <value>hdfs://localhost:9000</value>
+</property>
+
+
+IMPORTANT:
+
+Remember the value:
+
+hdfs://localhost:9000
+
+This value will be used in HBase configuration.
+
+
+============================================================
+STEP 4 — DOWNLOAD HBASE
+============================================================
+
+Go to home directory:
+
+cd ~
+
+
+Download:
+
+wget https://downloads.apache.org/hbase/2.6.6/hbase-2.6.6-hadoop3-bin.tar.gz
+
+
+Check:
+
+ls -lh hbase-2.6.6-hadoop3-bin.tar.gz
+
+
+============================================================
+STEP 5 — EXTRACT HBASE
+============================================================
+
+Run:
+
+tar -xzf hbase-2.6.6-hadoop3-bin.tar.gz
+
+
+Check:
+
+ls
+
+
+Expected:
+
+hbase-2.6.6-hadoop3
+
+
+============================================================
+STEP 6 — MOVE HBASE TO /usr/local
+============================================================
+
+Run:
+
+sudo mv hbase-2.6.6-hadoop3 /usr/local/hbase
+
+
+Check:
+
+ls /usr/local/hbase
+
+
+Expected folders include:
+
+bin
+conf
+docs
+hbase-webapps
+lib
+
+
+============================================================
+STEP 7 — SET HBASE_HOME
+============================================================
+
+Open:
+
+nano ~/.bashrc
+
+
+Go to the bottom.
+
+Add:
+
+export HBASE_HOME=/usr/local/hbase
+export HBASE_CONF_DIR=$HBASE_HOME/conf
+export PATH=$HBASE_HOME/bin:$PATH
+
+
+IMPORTANT:
+
+Do NOT create another JAVA_HOME if Java 11
+is already configured in ~/.bashrc.
+
+
+Save:
+
+Ctrl + O
+Enter
+Ctrl + X
+
+
+Reload:
+
+source ~/.bashrc
+
+
+============================================================
+STEP 8 — VERIFY HBASE ENVIRONMENT
+============================================================
+
+Run:
+
+echo $HBASE_HOME
+
+
+Expected:
+
+/usr/local/hbase
+
+
+Run:
+
+echo $HBASE_CONF_DIR
+
+
+Expected:
+
+/usr/local/hbase/conf
+
+
+Run:
+
+hbase version
+
+
+Expected:
+
+2.6.6
+
+
+============================================================
+STEP 9 — CONFIGURE hbase-env.sh
+============================================================
+
+Open:
+
+sudo nano /usr/local/hbase/conf/hbase-env.sh
+
+
+Add/uncomment:
+
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+
+export HBASE_MANAGES_ZK=true
+
+
+Meaning:
+
+JAVA_HOME
+→ HBase uses Java 11.
+
+HBASE_MANAGES_ZK=true
+→ HBase manages its own ZooKeeper.
+
+
+Save:
+
+Ctrl + O
+Enter
+Ctrl + X
+
+
+Verify:
+
+grep -E "JAVA_HOME|HBASE_MANAGES_ZK" \
+/usr/local/hbase/conf/hbase-env.sh
+
+
+Expected:
+
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+export HBASE_MANAGES_ZK=true
+
+
+============================================================
+STEP 10 — CONFIGURE hbase-site.xml
+============================================================
+
+Open:
+
+sudo nano /usr/local/hbase/conf/hbase-site.xml
+
+
+Replace the complete file with:
+
+<?xml version="1.0"?>
+
+<?xml-stylesheet
+type="text/xsl"
+href="configuration.xsl"?>
+
+<configuration>
+
+    <!-- HBase data stored in HDFS -->
+    <property>
+        <name>hbase.rootdir</name>
+        <value>hdfs://localhost:9000/hbase</value>
+    </property>
+
+    <!-- Distributed mode -->
+    <property>
+        <name>hbase.cluster.distributed</name>
+        <value>true</value>
+    </property>
+
+    <!-- ZooKeeper client port -->
+    <property>
+        <name>hbase.zookeeper.property.clientPort</name>
+        <value>2181</value>
+    </property>
+
+    <!-- ZooKeeper server -->
+    <property>
+        <name>hbase.zookeeper.quorum</name>
+        <value>localhost</value>
+    </property>
+
+</configuration>
+
+
+Save:
+
+Ctrl + O
+Enter
+Ctrl + X
+
+
+IMPORTANT:
+
+The following:
+
+hbase.rootdir
+
+MUST match your Hadoop fs.defaultFS.
+
+Current setup:
+
+Hadoop:
+hdfs://localhost:9000
+
+HBase:
+hdfs://localhost:9000/hbase
+
+
+============================================================
+STEP 11 — VERIFY hbase-site.xml
+============================================================
+
+Check root directory:
+
+grep -A2 -B1 "hbase.rootdir" \
+/usr/local/hbase/conf/hbase-site.xml
+
+
+Expected:
+
+<name>hbase.rootdir</name>
+<value>hdfs://localhost:9000/hbase</value>
+
+
+Check distributed mode:
+
+grep -A2 -B1 "hbase.cluster.distributed" \
+/usr/local/hbase/conf/hbase-site.xml
+
+
+Expected:
+
+<name>hbase.cluster.distributed</name>
+<value>true</value>
+
+
+Check ZooKeeper:
+
+grep -A2 -B1 "hbase.zookeeper" \
+/usr/local/hbase/conf/hbase-site.xml
+
+
+Expected:
+
+clientPort = 2181
+quorum = localhost
+
+
+============================================================
+STEP 12 — START HADOOP
+============================================================
+
+HBase requires Hadoop/HDFS.
+
+Run:
+
+java11
+
+start-dfs.sh
+start-yarn.sh
+
+
+Check:
+
+jps
+
+
+Expected:
+
+NameNode
+DataNode
+SecondaryNameNode
+ResourceManager
+NodeManager
+Jps
+
+
+============================================================
+STEP 13 — TEST HDFS
+============================================================
+
+Run:
+
+hdfs dfs -ls /
+
+
+If HDFS is working, you should see HDFS directories.
+
+
+Example:
+
+/user
+/college
+/lab
+/etc.
+
+
+Now check:
+
+hdfs dfs -ls /hbase
+
+
+You may get:
+
+No such file or directory
+
+
+THIS IS NORMAL.
+
+Do NOT manually create /hbase.
+
+HBase will create it automatically.
+
+
+============================================================
+STEP 14 — START HBASE
+============================================================
+
+Run:
+
+start-hbase.sh
+
+
+Wait approximately 10–20 seconds.
+
+
+Then:
+
+jps
+
+
+Expected additional processes:
+
+HMaster
+HRegionServer
+
+
+Complete example:
+
+NameNode
+DataNode
+SecondaryNameNode
+ResourceManager
+NodeManager
+HMaster
+HRegionServer
+Jps
+
+
+============================================================
+STEP 15 — CHECK HBASE LOGS IF NEEDED
+============================================================
+
+Check HBase logs:
+
+ls /usr/local/hbase/logs
+
+
+You may see:
+
+hbase-*-master-*.log
+
+hbase-*-regionserver-*.log
+
+
+Master log:
+
+tail -100 /usr/local/hbase/logs/hbase-*-master-*.log
+
+
+RegionServer log:
+
+tail -100 /usr/local/hbase/logs/hbase-*-regionserver-*.log
+
+
+============================================================
+STEP 16 — OPEN HBASE SHELL
+============================================================
+
+Run:
+
+hbase shell
+
+
+Expected:
+
+HBase Shell
+Version 2.6.6
+
+hbase(main):001:0>
+
+
+============================================================
+STEP 17 — CHECK HBASE STATUS
+============================================================
+
+At HBase shell:
+
+status
+
+
+Expected:
+
+1 active master
+1 servers
+0 dead
+
+
+This confirms HBase is running.
+
+
+============================================================
+STEP 18 — CHECK HBASE VERSION
+============================================================
+
+Run:
+
+version
+
+
+Expected:
+
+2.6.6-hadoop3
+
+
+Example:
+
+2.6.6-hadoop3,
+...
+
+
+============================================================
+STEP 19 — CREATE FIRST HBASE TABLE
+============================================================
+
+Create:
+
+create 'students', 'info'
+
+
+Meaning:
+
+students
+    = table name
+
+info
+    = column family
+
+
+Check:
+
+list
+
+
+Expected:
+
+students
+
+
+============================================================
+STEP 20 — DESCRIBE TABLE
+============================================================
+
+Run:
+
+describe 'students'
+
+
+You should see:
+
+info
+
+
+This confirms the table and column family exist.
+
+
+============================================================
+STEP 21 — INSERT DATA
+============================================================
+
+HBase uses PUT.
+
+Syntax:
+
+put 'table', 'rowkey', 'columnfamily:column', 'value'
+
+
+Example:
+
+put 'students', '1', 'info:name', 'Amit'
+
+put 'students', '1', 'info:age', '22'
+
+put 'students', '1', 'info:course', 'BDA'
+
+
+Second row:
+
+put 'students', '2', 'info:name', 'Sneha'
+
+put 'students', '2', 'info:age', '23'
+
+put 'students', '2', 'info:course', 'BDA'
+
+
+============================================================
+STEP 22 — READ DATA
+============================================================
+
+Read complete table:
+
+scan 'students'
+
+
+Read one row:
+
+get 'students', '1'
+
+
+Read one column:
+
+get 'students', '1', 'info:name'
+
+
+============================================================
+STEP 23 — CHECK HBASE HDFS DIRECTORY
+============================================================
+
+Exit HBase shell:
+
+exit
+
+
+Check:
+
+hdfs dfs -ls /hbase
+
+
+Now /hbase should exist because HBase has started
+and initialized its HDFS storage.
+
+
+============================================================
+STEP 24 — DAILY HBASE START
+============================================================
+
+After shutting down the VM and starting it again:
+
+TERMINAL 1:
+
+java11
+
+start-dfs.sh
+start-yarn.sh
+
+
+Check:
+
+jps
+
+
+Then:
+
+start-hbase.sh
+
+
+Check:
+
+jps
+
+
+Expected:
+
+NameNode
+DataNode
+SecondaryNameNode
+ResourceManager
+NodeManager
+HMaster
+HRegionServer
+Jps
+
+
+Then:
+
+hbase shell
+
+
+Check:
+
+status
+
+
+============================================================
+STEP 25 — DAILY HBASE STOP
+============================================================
+
+First exit HBase shell:
+
+exit
+
+
+Stop HBase:
+
+stop-hbase.sh
+
+
+Check:
+
+jps
+
+
+HMaster and HRegionServer should disappear.
+
+
+Then stop Hadoop:
+
+stop-yarn.sh
+stop-dfs.sh
+
+
+Check:
+
+jps
+
+
+============================================================
+STEP 26 — COMPLETE START ORDER
+============================================================
+
+Java 11
+   ↓
+Hadoop HDFS
+   ↓
+Hadoop YARN
+   ↓
+HBase
+   ↓
+HMaster
+   ↓
+HRegionServer
+   ↓
+HBase Shell
+
+
+Commands:
+
+java11
+
+start-dfs.sh
+start-yarn.sh
+
+start-hbase.sh
+
+hbase shell
+
+status
+
+
+============================================================
+STEP 27 — COMPLETE STOP ORDER
+============================================================
+
+HBase Shell
+   ↓
+HBase
+   ↓
+YARN
+   ↓
+HDFS
+
+
+Commands:
+
+exit
+
+stop-hbase.sh
+
+stop-yarn.sh
+
+stop-dfs.sh
+
+
+============================================================
+STEP 28 — IMPORTANT TROUBLESHOOTING
+============================================================
+
+PROBLEM:
+
+hbase: command not found
+
+
+Check:
+
+echo $HBASE_HOME
+
+
+Expected:
+
+/usr/local/hbase
+
+
+Reload:
+
+source ~/.bashrc
+
+
+Then:
+
+hbase version
+
+
+------------------------------------------------------------
+
+PROBLEM:
+
+HMaster not appearing
+
+
+Check:
+
+jps
+
+
+Check Hadoop:
+
+hdfs dfs -ls /
+
+
+Check logs:
+
+ls /usr/local/hbase/logs
+
+
+Then:
+
+tail -100 /usr/local/hbase/logs/hbase-*-master-*.log
+
+
+------------------------------------------------------------
+
+PROBLEM:
+
+HRegionServer not appearing
+
+
+Check:
+
+jps
+
+
+Check:
+
+tail -100 /usr/local/hbase/logs/hbase-*-regionserver-*.log
+
+
+------------------------------------------------------------
+
+PROBLEM:
+
+HBase cannot connect to HDFS
+
+
+Check Hadoop:
+
+hdfs dfs -ls /
+
+
+Check Hadoop configuration:
+
+grep -A2 "fs.defaultFS" \
+/usr/local/hadoop/etc/hadoop/core-site.xml
+
+
+Current:
+
+hdfs://localhost:9000
+
+
+Check HBase configuration:
+
+grep -A2 "hbase.rootdir" \
+/usr/local/hbase/conf/hbase-site.xml
+
+
+Current:
+
+hdfs://localhost:9000/hbase
+
+
+These addresses must match.
+
+
+------------------------------------------------------------
+
+PROBLEM:
+
+Java error
+
+
+Check:
+
+java -version
+
+echo $JAVA_HOME
+
+
+Use:
+
+java11
+
+
+Expected:
+
+/usr/lib/jvm/java-11-openjdk-amd64
+
+
+------------------------------------------------------------
+
+PROBLEM:
+
+ZooKeeper error
+
+
+Check:
+
+grep -E "JAVA_HOME|HBASE_MANAGES_ZK" \
+/usr/local/hbase/conf/hbase-env.sh
+
+
+Expected:
+
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+export HBASE_MANAGES_ZK=true
+
+
+Check:
+
+grep -A2 -B1 "hbase.zookeeper" \
+/usr/local/hbase/conf/hbase-site.xml
+
+
+Expected:
+
+localhost
+2181
+
+
+============================================================
+STEP 29 — FINAL INSTALLATION CHECKLIST
+============================================================
+
+[ ] Java 11 installed
+
+[ ] Hadoop 3.3.6 working
+
+[ ] HBase 2.6.6 downloaded
+
+[ ] HBase extracted
+
+[ ] HBase moved to /usr/local/hbase
+
+[ ] HBASE_HOME configured
+
+[ ] HBASE_CONF_DIR configured
+
+[ ] PATH configured
+
+[ ] hbase-env.sh configured
+
+[ ] JAVA_HOME configured
+
+[ ] HBASE_MANAGES_ZK=true
+
+[ ] hbase-site.xml configured
+
+[ ] hbase.rootdir correct
+
+[ ] hbase.cluster.distributed=true
+
+[ ] ZooKeeper configured
+
+[ ] Hadoop started
+
+[ ] HDFS working
+
+[ ] HBase started
+
+[ ] HMaster running
+
+[ ] HRegionServer running
+
+[ ] HBase Shell working
+
+[ ] status shows 1 active master
+
+[ ] status shows 1 server
+
+[ ] version shows 2.6.6-hadoop3
+
+[ ] First table created
+
+
+============================================================
+             HBASE INSTALLATION COMPLETE
+============================================================
